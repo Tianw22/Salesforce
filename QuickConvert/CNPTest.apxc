@@ -1,0 +1,39 @@
+@isTest
+public class CNPTest {
+
+    static testMethod void ConvertNewPage(){
+        Profile p = [SELECT Id FROM Profile WHERE Name='xxxxx'];//Name = 'Profile's Name'
+        User u1 = new User(Alias = 'test',Country='United Kingdom',Email='test@test.com',EmailEncodingKey='UTF-8', LastName='test', LanguageLocaleKey='en_US',LocaleSidKey='en_US',ProfileId = p.Id,TimeZoneSidKey='America/Los_Angeles', UserName='test@test.com');
+        insert u1;
+        System.runAs(u1){
+        	Account acc = new Account(); 
+       		acc.Type = 'Customer Account'; 
+        	acc.Name = 'TEST-ACC';
+        	acc.Website = 'test.com';
+        	acc.Industry = 'Business Services';
+        	acc.AccountSource = 'Relationship'; 
+          //Insert ALL the required fields while create a new account.
+        	insert acc;
+            
+        	Lead ld=new Lead();
+			    ld.FirstName = 'test001';
+			    ld.LastName = 'test001';
+			    ld.Account_Name__c = acc.Id;
+			    ld.LeadSource = 'Relationship';
+			    ld.Status = 'New';
+			    ld.Company = 'Test-New';
+			    ld.Phone = '9999999999';
+			    ld.Email = 'test001@test.com';
+			    ld.Title = 'Manager';        
+        	insert ld;
+        
+        	test.StartTest();
+        	String objectName = 'Lead';
+        	String fieldSetName = 'LeadConversionFieldSet';
+        	List<String> gfs = ConvertNewPageController.getFieldSetMember(objectName ,fieldSetName);
+        	String str = ConvertNewPageController.convertIt(ld.Id);
+
+        	test.stopTest();    
+        }
+    }   
+}
