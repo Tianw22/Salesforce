@@ -4,7 +4,7 @@
 import pandas as pd
 import re
 
-df = pd.read_csv('all-companies.csv',encoding='utf-8-sig')#,encoding='utf8')
+df = pd.read_csv('all-companies.csv',encoding='utf-8-sig')
 pd.DataFrame(df)
 fnc = pd.read_excel('ComAccFieldNameChange.xlsx',encoding='utf8')
 fnc = pd.DataFrame(fnc)
@@ -21,76 +21,103 @@ for i in range(0,len(fnc)):
 df_dropped["Account Protected Status"].replace({"No":"Open",
                                                 "Yes - Top 35 Prospect Account":"Protected - Top Prospect"},
                                                  inplace=True)
-df_dropped["Has Business in APAC"].replace({"Maybe":""},inplace=True)
+
+df_dropped["Has Business in APAC"].replace({"Maybe":"",
+                                            "Unknown":""},inplace=True)
+df_dropped["Has Business in China"].replace({"Maybe":"",
+                                             "Unknown":""},inplace=True)
+df_dropped["Has Business in LATAM"].replace({"Maybe":"",
+                                             "Unknown":""},inplace=True)
+
+df_dropped["Association/List Tag"].replace({"Nickname Update":"",
+                                            "Nickname Update w/o Cleaning":"",
+                                            "Potential Banned Company":"",
+                                            "Uniworld All Data":""
+                                            },inplace=True)
+df_dropped["Number of Sites in APAC"].replace({"Unknown":""},inplace=True)
+df_dropped["Number of Sites in China"].replace({"Unknown":""},inplace=True)
+
+AccProSta = list(df_dropped["Account Protected Status"])
+Lifecycle = list(df_dropped["Lifecycle Stage"])
+Typelist = list(df_dropped["Type"])
 for i in range(0,len(df_dropped)):
-    if (df_dropped["Account Protected Status"][i] == "Yes - Opportunity Account"):
-        if (df_dropped["Type"][i] == "Channel Partner") or (df_dropped["Lifecycle Stage"][i] == "Evangelist"): 
-            df_dropped["Account Protected Status"][i] = "Protected - Active Opportunity Agent"
+    if (AccProSta[i] == "Yes - Opportunity Account"):
+        if (Typelist[i] == "Channel Partner") or (Lifecycle[i] == "Evangelist"): 
+            AccProSta[i] = "Protected - Active Opportunity Agent"
         else:
-            df_dropped["Account Protected Status"][i] = "Protected - Active Opportunity Account"
+            AccProSta[i] = "Protected - Active Opportunity Account"
 for i in range(0,len(df_dropped)):
-    if (df_dropped["Account Protected Status"][i] == "Yes - Customer Account"): 
-        if (df_dropped["Type"][i] == "Channel Partner") or (df_dropped["Lifecycle Stage"][i] == "Evangelist"): 
-            df_dropped["Account Protected Status"][i] = "Protected - Billing Agent"
+    if (AccProSta[i] == "Yes - Customer Account"): 
+        if (Typelist[i] == "Channel Partner") or (Lifecycle[i] == "Evangelist"): 
+            AccProSta[i] = "Protected - Billing Agent"
         else:
-            df_dropped["Account Protected Status"][i] = "Protected - Billing Customer"
+            AccProSta[i] = "Protected - Billing Customer"           
+df_dropped["Account Protected Status"] = AccProSta
+
+ComStatus = list(df_dropped["Company Status (Data Backup - HubSpot)"])
 for i in range(0,len(df_dropped)):
-    if (df_dropped["Company Status (Data Backup - HubSpot)"][i] == "Action Needed") or (df_dropped["Company Status (Data Backup - HubSpot)"][i] == "Prospecting") or (df_dropped["Company Status (Data Backup - HubSpot)"][i] == "Pre-Qualify"): 
-        if (df_dropped["Lifecycle Stage"][i] == "Subscriber"): 
-            df_dropped["Lifecycle Stage"][i] = "Lead"
-        elif (df_dropped["Lifecycle Stage"][i] == "Marketing Qualified Lead"):
-            df_dropped["Lifecycle Stage"][i] = "Marketing Qualified Lead"
-        elif (df_dropped["Lifecycle Stage"][i] == "Sales Qualified Lead"):
-            df_dropped["Lifecycle Stage"][i] = "Sales Qualified Lead"                
+    if (ComStatus[i] == "Action Needed") or (ComStatus[i] == "Prospecting") or (ComStatus[i] == "Pre-Qualify"): 
+        if (Lifecycle[i] == "Subscriber"): 
+            Lifecycle[i] = "Lead"
+        elif (Lifecycle[i] == "Marketing Qualified Lead"):
+            Lifecycle[i] = "Marketing Qualified Lead"
+        elif (Lifecycle[i] == "Sales Qualified Lead"):
+            Lifecycle[i] = "Sales Qualified Lead"     
 for i in range(0,len(df_dropped)):
-    if (df_dropped["Lifecycle Stage"][i] == "Opportunity"): 
-        if (df_dropped["Company Status (Data Backup - HubSpot)"][i] == "Active Opportunity"): 
-            df_dropped["Lifecycle Stage"][i] = "Active Opportunity"
-        elif (df_dropped["Company Status (Data Backup - HubSpot)"][i] == "Lost Opportunity"):
-            df_dropped["Lifecycle Stage"][i] = "Lost Opportunity"            
+    if (Lifecycle[i] == "Opportunity"): 
+        if (ComStatus[i] == "Active Opportunity"): 
+            Lifecycle[i] = "Active Opportunity"
+        elif (ComStatus[i] == "Lost Opportunity"):
+            Lifecycle[i] = "Lost Opportunity"
 for i in range(0,len(df_dropped)):
-    if (df_dropped["Lifecycle Stage"][i] == "Customer"): 
-        if (df_dropped["Company Status (Data Backup - HubSpot)"][i] == "Billing Customer"): 
-            df_dropped["Lifecycle Stage"][i] = "Billing Customer"
-        elif (df_dropped["Company Status (Data Backup - HubSpot)"][i] == "Lost Customer"):
-            df_dropped["Lifecycle Stage"][i] = "Lost Customer"
+    if (Lifecycle[i] == "Customer"): 
+        if (ComStatus[i] == "Billing Customer"): 
+            Lifecycle[i] = "Billing Customer"
+        elif (ComStatus[i] == "Lost Customer"):
+            Lifecycle[i] = "Lost Customer"           
+df_dropped["Lifecycle Stage"] = Lifecycle
 df_dropped["Lifecycle Stage"].replace({"Evangelist":"Billing Customer",
-                                       "Other":"Disqualified"},inplace=True)            
+                                       "Other":"Disqualified"},inplace=True)
+
+AccSource = list(df_dropped["Account Source"])
+MarProBre = list(df_dropped["Marketing Prospecting Breakdown"])
+for i in range(0,len(df_dropped)):
+    if (AccSource[i] == "Marketing Prospecting"): 
+        if (MarProBre[i] == "Online Prospecting"): 
+            AccSource[i] = "Online Research"
+        elif (MarProBre[i] == "Web Traffic"):
+            AccSource[i] = "Web - Direct Traffic"
+        elif (MarProBre[i] == "Weekly Intelligence Research"):
+            AccSource[i] = "Online Research"
+        elif (MarProBre[i] == "Outreach"):
+            AccSource[i] = "Online Research"
+        elif (MarProBre[i] == "Campaign"):
+            AccSource[i] = "Email Campaign"     
+        else:
+            AccSource[i] = "Online Research" 
+df_dropped["Account Source"] = AccSource
 df_dropped["Account Source"].replace({"Sales Discovery":"Online Research",
-                                       "Channel Partner/Agent":"Channel Sub Agent"},inplace=True)            
+                                       "Channel Partner/Agent":"Channel Sub Agent"},inplace=True)
+
+ChanParType = list(df_dropped["Channel Partner Type"])
 for i in range(0,len(df_dropped)):
-    if (df_dropped["Account Source"][i] == "Marketing Prospecting"): 
-        if (df_dropped["Marketing Prospecting Breakdown"][i] == "Online Prospecting"): 
-            df_dropped["Account Source"][i] = "Online Research"
-        elif (df_dropped["Marketing Prospecting Breakdown"][i] == "Web Traffic"):
-            df_dropped["Account Source"][i] = "Web - Direct Traffic"
-        elif (df_dropped["Marketing Prospecting Breakdown"][i] == "Weekly Intelligence Research"):
-            df_dropped["Account Source"][i] = "Online Research"
-        elif (df_dropped["Marketing Prospecting Breakdown"][i] == "Outreach"):
-            df_dropped["Account Source"][i] = "Online Research"
-        elif (df_dropped["Marketing Prospecting Breakdown"][i] == "Campaign"):
-            df_dropped["Account Source"][i] = "Email Campaign"     
-        else:
-            df_dropped["Account Source"][i] = "Online Research" 
-for i in range(0,len(df_dropped)):
-    if (df_dropped["Type"][i] == "Channel Partner"):
-        if (df_dropped["Channel Partner Type"][i] == "Channel Master Agent"):
-            df_dropped["Type"][i] = "Channel Master Agent"
-        else:
-            df_dropped["Type"][i] = "Channel Sub Agent"
-    else:
-        df_dropped["Type"][i] = "Direct Customer Account"            
+    if (Typelist[i] == "Channel Partner") and (ChanParType[i] == "Channel Master Agent"):
+        Typelist[i] = "Channel Master Agent"
+    elif (Typelist[i] == "Channel Partner") and (ChanParType[i] != "Channel Master Agent"):
+        Typelist[i] = "Channel Sub Agent"
+    elif (Typelist[i] != "Channel Master Agent") and (Typelist[i] != "Channel Sub Agent") and (type(Typelist[i]) != float):
+        Typelist[i] = "Direct Customer Account"
+df_dropped["Type"] = Typelist
+
 df_dropped["Disqualify Reasons"].replace({"No China/APC Business":"Irrelevant",
                                           "No Longer Exist":"No Longer Existed",
                                           "Invalid Input":"Invalid Entry",
                                           "Other Reason":"Other Resons (To Be Specified)",
                                           "Not Interested in CTA":"Irrelevant"},
-                                            inplace=True)            
+                                            inplace=True)
 
-# Drop the columns no longer needed.
-df_new = df_dropped.drop(columns=["Channel Partner Type", "Marketing Prospecting Breakdown"])            
-            
-# Replace HubSpot username by Salesforce Id
+df_new = df_dropped.drop(columns=["Channel Partner Type", "Marketing Prospecting Breakdown"])
+
 user = pd.read_excel('User-updated.xlsx',encoding='utf-8-sig')
 user = pd.DataFrame(user)
 userid = user['Id']
@@ -100,31 +127,51 @@ for i in range(0,len(user)):
     n1 = userid[i]
     n2 = username[i]
     df_new["Account Owner"].replace({n2:n1},inplace=True)
-    
-# Massage location data.
+
 glob = pd.read_excel('ComAccGlobal.xlsx',encoding='utf-8-sig')
 glob = pd.DataFrame(glob)
 headq = pd.read_excel('ComAccHeadquater.xlsx',encoding='utf-8-sig')
 headq = pd.DataFrame(headq)
-df_new["Americas Headquarter"] = df_new["Global Headquarter"] # Generate a new column            
+
 globold = glob['0 - Global Headquarter']
 globnew1 = glob['Americas Headquarter']
 globnew2 = glob['Global Headquarter']
+localist = list(df_new["Global Headquarter"])      
+df_new["Americas Headquarter"] = df_new["Global Headquarter"]
+
 for i in range(0,len(glob)):
     n1 = globold[i]
     n2 = globnew1[i]
     n3 = globnew2[i]
-    df_new["Global Headquarter"].replace({n1:n3},inplace=True) # Replace value
-    df_new["Americas Headquarter"].replace({n1:n2},inplace=True)    
+    df_new["Global Headquarter"].replace({n1:n3},inplace=True)
+    df_new["Americas Headquarter"].replace({n1:n2},inplace=True)
+    
 headold = headq['1 - China Site Locations']
-headnew = headq['China Site Locations (by City)TBD']
-headfile = df_new['China Site Locations (by City)TBD']
+headnew = headq['China Site Locations (by Province)']
+headfile = list(df_new['China Site Locations (by Province)'])
 head_dict = dict(zip(headold, headnew))
+
 for i in range(0,len(df_new)):
-    if type(df_new['China Site Locations (by City)TBD'][i])!=float:
-        word = df_new['China Site Locations (by City)TBD'][i].split("; ")
+    if type(headfile[i])!=float:
+        word = headfile[i].split(";")
+        #print(word)
         rep = [head_dict[x] if x in head_dict else x for x in word]
+        rep = list(set(rep))
+        #print(i)
+        #print(rep)
         listToStr = ';'.join([str(elem) for elem in rep])  
-        df_new['China Site Locations (by City)TBD'][i] = listToStr
+        headfile[i] = listToStr
         
-df_new.to_csv('SFimport.csv', index=False, encoding='utf-8-sig')
+for i in range(0,len(headfile)):
+    if (type(headfile[i])!=float):
+        headfile[i] = headfile[i].replace("Unknown;","")
+        headfile[i] = headfile[i].replace(";Unknown","")
+        headfile[i] = headfile[i].replace("Unknown","")
+        
+        headfile[i] = headfile[i].replace("Wrong Value;","")
+        headfile[i] = headfile[i].replace(";Wrong Value","")
+        headfile[i] = headfile[i].replace("Wrong Value","")
+        
+df_new['China Site Locations (by City)TBD'] = headfile
+
+df_new.to_csv('accfinish.csv', index=False, encoding='utf-8-sig')
