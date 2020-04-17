@@ -1,0 +1,10 @@
+@istest
+public class OppOverdueUpdateSchedulerTest{
+    static testMethod void OppOverdueUpdateScheduler(){
+    	Test.StartTest();
+		OppOverdueUpdateScheduler a = new OppOverdueUpdateScheduler();      
+ 		String sch = '0 0 23 * * ?';
+    	system.schedule('Test check', sch, a);
+		Test.stopTest();
+    }
+}
