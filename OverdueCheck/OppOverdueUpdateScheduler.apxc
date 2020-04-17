@@ -1,0 +1,9 @@
+global class OppOverdueUpdateScheduler implements Schedulable {
+
+    global void execute(SchedulableContext sc) {
+    
+        OppOverdueUpdate b = new OppOverdueUpdate();
+        database.executebatch(b);
+        
+    }
+}
