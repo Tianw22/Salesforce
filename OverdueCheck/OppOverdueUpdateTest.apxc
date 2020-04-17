@@ -1,0 +1,24 @@
+@isTest
+public class OppOverdueUpdateTest {
+
+	static testMethod void OppOverdueUpdate(){
+  
+        Opportunity opp = new Opportunity();
+        opp.Name = 'TestClass';
+        opp.Description = 'Test Class for Overdue Check';
+        opp.AccountId = 'xxxxxxxxxxxxxxxxxx';
+        opp.Primary_Contact__c = 'xxxxxxxxxxxxxxxxxx';
+        opp.CloseDate = Date.today().addDays(-1);
+        //And all other required fields for creating a new opportunity.
+        insert opp;      
+
+    test.StartTest();
+
+    OppOverdueUpdate o = new OppOverdueUpdate();
+    DataBase.executeBatch(o);
+        
+    Test.stopTest();
+    
+    }
+ 
+}
