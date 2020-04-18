@@ -1,0 +1,9 @@
+global class CommitUpdateScheduler implements Schedulable {
+
+    global void execute(SchedulableContext sc) {
+    
+        CommitUpdate b = new CommitUpdate();
+        database.executebatch(b);
+        
+    }
+}
