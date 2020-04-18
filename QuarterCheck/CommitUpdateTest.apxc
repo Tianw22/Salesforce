@@ -1,0 +1,25 @@
+@isTest
+public class CommitUpdateTest {
+	static testMethod void CommitUpdate(){
+  
+        Opportunity opp = new Opportunity();
+        opp.Name = 'TestClass';
+        opp.Description = 'Test Class for Commit Update';
+        //all the other required fields while creating a new opportunity
+        
+        opp.Commit_This_Quarter__c = True;
+        opp.Commit_Result_This_Quarter__c = 'Not Closed';
+        
+        insert opp;      
+
+    test.StartTest();
+
+    CommitUpdate o = new CommitUpdate();
+    DataBase.executeBatch(o);
+
+        
+    Test.stopTest();
+    
+    }
+ 
+}
