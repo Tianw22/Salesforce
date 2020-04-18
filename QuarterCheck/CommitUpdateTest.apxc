@@ -5,16 +5,26 @@ public class CommitUpdateTest {
         Opportunity opp = new Opportunity();
         opp.Name = 'TestClass';
         opp.Description = 'Test Class for Commit Update';
+	opp.CloseDate = Date.today().addDays(13);
         //all the other required fields while creating a new opportunity
-        
         opp.Commit_This_Quarter__c = True;
         opp.Commit_Result_This_Quarter__c = 'Not Closed';
-        
         insert opp;      
+	
+	Opportunity opp2 = new Opportunity();
+        opp2.Name = 'TestClass2';
+        opp2.Description = 'Test Class for Commit Update';
+        opp2.CloseDate = Date.today().addMonths(8);
+  	//all the other required fields while creating a new opportunity
+        opp2.Commit_This_Quarter__c = True;
+        opp2.Commit_Result_This_Quarter__c = 'Not Closed';
+        insert opp2; 
 
     test.StartTest();
 
     CommitUpdate o = new CommitUpdate();
+    Date todaydate = Date.newInstance(2021, 1, 1); //Important!!!
+    o.todaydate = todaydate;
     DataBase.executeBatch(o);
 
         
