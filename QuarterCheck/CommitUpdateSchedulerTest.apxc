@@ -1,0 +1,10 @@
+@istest
+public class CommitUpdateSchedulerTest{
+    static testMethod void CommitUpdateScheduler(){
+    	Test.StartTest();
+		CommitUpdateScheduler a = new CommitUpdateScheduler();      
+ 		String sch = '0 0 0 1 5 ? 2022';
+    	system.schedule('Test check', sch, a);
+		Test.stopTest();
+    }
+}
