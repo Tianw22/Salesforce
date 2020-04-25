@@ -2,38 +2,61 @@
 public class CNPTest {
 
     static testMethod void ConvertNewPage(){
-        Profile p = [SELECT Id FROM Profile WHERE Name='xxxxx'];//Name = 'Profile's Name'
+    
+        Profile p = [SELECT Id FROM Profile WHERE Name='xxxxx']; //Name = 'Profile's Name'
         User u1 = new User(Alias = 'test',Country='United Kingdom',Email='test@test.com',EmailEncodingKey='UTF-8', LastName='test', LanguageLocaleKey='en_US',LocaleSidKey='en_US',ProfileId = p.Id,TimeZoneSidKey='America/Los_Angeles', UserName='test@test.com');
         insert u1;
+	User u2 = new User(Alias = 'test02',Country='United Kingdom',Email='test02@test.com',EmailEncodingKey='UTF-8', LastName='test02', LanguageLocaleKey='en_US',LocaleSidKey='en_US',ProfileId = p.Id,TimeZoneSidKey='America/Los_Angeles', UserName='test02@test.com');
+        insert u2;
+	
         System.runAs(u1){
-        	Account acc = new Account(); 
-       		acc.Type = 'Customer Account'; 
-        	acc.Name = 'TEST-ACC';
-        	acc.Website = 'test.com';
-        	acc.Industry = 'Business Services';
-        	acc.AccountSource = 'Relationship'; 
-          //Insert ALL the required fields while create a new account.
-        	insert acc;
+            Account acc = new Account(); 
+       	    acc.Type = 'Customer Account'; 
+            acc.Name = 'TEST-ACC';
+            acc.Website = 'test.com';
+            acc.Industry = 'Business Services';
+            acc.AccountSource = 'Relationship'; 
+            //Insert ALL the required fields while create a new account.
+            insert acc;
             
-        	Lead ld=new Lead();
-			    ld.FirstName = 'test001';
-			    ld.LastName = 'test001';
-			    ld.Account_Name__c = acc.Id;
-			    ld.LeadSource = 'Relationship';
-			    ld.Status = 'New';
-			    ld.Company = 'Test-New';
-			    ld.Phone = '9999999999';
-			    ld.Email = 'test001@test.com';
-			    ld.Title = 'Manager';        
-        	insert ld;
+            Lead ld1=new Lead();
+	    ld1.FirstName = 'test001';
+	    ld1.LastName = 'test001';
+	    ld1.Account_Name__c = acc.Id;
+	    ld1.LeadSource = 'Relationship';
+	    ld1.Status = 'New';
+	    ld1.Company = 'Test-New';
+	    ld1.Phone = '9999999999';
+	    ld1.Email = 'test001@test.com';
+	    ld1.Title = 'Manager';        
+            insert ld1;
+	    
+	    Lead ld2=new Lead();
+	    ld2.FirstName = 'test002';
+	    ld2.LastName = 'test002';
+	    ld2.Account_Name__c = acc.Id;
+	    ld2.LeadSource = 'Relationship';
+	    ld2.Status = 'New';
+	    ld2.Company = 'Test-New2';
+	    ld2.Phone = '909090909090';
+	    ld2.Email = 'test002@test.com';
+	    ld2.Title = 'Manager'; 
+	    ld2.OwnerId = u2.Id; //Suppose user1 is converting a lead belongs to user2.
+            insert ld2;	
         
-        	test.StartTest();
-        	String objectName = 'Lead';
-        	String fieldSetName = 'LeadConversionFieldSet';
-        	List<String> gfs = ConvertNewPageController.getFieldSetMember(objectName ,fieldSetName);
-        	String str = ConvertNewPageController.convertIt(ld.Id);
+            test.StartTest();
+	    String str1 = ConvertNewPageController.convertIt(ld1.Id);
+            try
+            {
+        	String str2 = ConvertNewPageController.convertIt(ld2.Id);
+            }
+            catch(AuraHandledException e)
+            {
+            System.debug(e.getMessage());
+            System.assert(e.getMessage().contains('You can')); //Validation rule error msg.
+	    }	    
 
-        	test.stopTest();    
+            test.stopTest();    
         }
     }   
 }
