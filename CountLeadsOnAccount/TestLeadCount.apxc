@@ -1,0 +1,47 @@
+@isTest
+private class TestLeadCount {
+    @isTest static void LeadCount() {
+        User user = [SELECT Id, Name FROM User WHERE Name = 'Sales Test'];
+		    system.runAs(user){
+            
+            Account acc = new Account();
+            acc.Type = 'Direct Customer Account';
+            acc.Name = 'Test';
+            acc.Website = 'test-test.com';
+            acc.Industry = 'Education';
+            acc.AccountSource = 'Online Research';
+            //All other required fields while creating an account.
+            insert acc;
+            
+            Lead ld=new Lead();
+			      ld.FirstName = 'TEST';
+			      ld.LastName = 'TEST';
+			      ld.Account_Name__c = acc.Id;
+			      ld.LeadSource = 'Relationship';
+			      ld.Status = 'New';
+			      ld.Company = 'Test';
+			      ld.Phone = '9999999999';
+			      ld.Email = 'TEST@test.com';
+			      ld.Title = 'Manager'; 
+        	  insert ld;
+            
+            Lead ld2=new Lead();
+			      ld2.FirstName = 'TEST2';
+			      ld2.LastName = 'TEST2';
+			      ld2.Account_Name__c = acc.Id;
+			      ld2.LeadSource = 'Relationship';
+			      ld2.Status = 'New';
+			      ld2.Company = 'Test';
+			      ld2.Phone = '11111111111';
+			      ld2.Email = 'TEST2@test.com';
+			      ld2.Title = 'Manager'; 
+        	  insert ld2;
+            
+        	  Test.startTest();
+            Database.DeleteResult result = Database.delete(ld, false);
+            //System.assertEquals(acc.Number_of_Associated_Leads__c,1);
+        	  Test.stopTest();
+    }
+    
+}
+}
