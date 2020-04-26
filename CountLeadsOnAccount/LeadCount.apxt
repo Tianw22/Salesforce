@@ -1,0 +1,26 @@
+trigger LeadCount on Lead (after insert, after update, after delete, after undelete) {   
+
+    Map<Id,String> leadAcc = new Map<Id,String>();
+    List<Lead> leads = Trigger.isDelete ? Trigger.old : Trigger.new;
+    
+    for(Lead lead : leads) {
+        leadAcc.put(lead.Account_Name__c,lead.Id);
+    }
+    List<Lead> ld = [SELECT ID, NAME, STATUS, Account_Name__c FROM LEAD WHERE STATUS LIKE 'N%' AND Account_Name__c IN :leadAcc.keySet()];
+	  integer count = ld.size();
+    List<Account> acc = [SELECT ID, Number_of_Associated_Leads__c FROM ACCOUNT WHERE ID IN :leadAcc.keySet()];
+    
+    if(count > 0){
+	    for(Account a: acc){
+    	    a.Number_of_Associated_Leads__c = count;
+    	}       
+    update acc;
+    }else{
+        for(Account a: acc){
+    	    a.Number_of_Associated_Leads__c = null;
+    	}       
+    update acc;
+    }
+    
+	system.debug('the count is '+ count);
+}
