@@ -1,4 +1,6 @@
 import pandas as pd
+from datetime import datetime
+import time
 
 dfld = pd.read_excel('emailldraw.xlsx',encoding='utf-8-sig')#,encoding='utf8')
 dfld = pd.DataFrame(dfld)
@@ -17,8 +19,7 @@ dfld = dfld.drop(columns=["WHOID","Salesforce target object"])
 dfldnew = dfld.rename(columns={"LEADID":"WHOID"})
 
 actdatelist = list(dfldnew['ACTIVITYDATE'].astype(str))
-from datetime import datetime
-import time
+
 for i in range(0,len(actdatelist)):
     inDate = actdatelist[i]
     d = datetime.strptime(inDate,"%Y-%m-%d %H:%M:%S")
@@ -26,4 +27,6 @@ for i in range(0,len(actdatelist)):
     
 dfldnew['ACTIVITYDATE'] = actdatelist
 
-dfldnew.to_csv("EMAIL-lead-for-import.csv", index=False, encoding='utf-8-sig')
+final = dfldnew[~dfldnew.OWNERID.str.contains("(Deactivated)")].reset_index().drop(columns = ['index'])
+
+final.to_csv("EMAIL-lead-for-import.csv", index=False, encoding='utf-8-sig')
