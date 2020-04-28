@@ -4,16 +4,16 @@ global class OppOverdueUpdate implements Database.Batchable<sObject>, Database.S
         
         global Database.QueryLocator start(Database.BatchableContext bc) {
             return Database.getQueryLocator(
-                    'SELECT ID, STAGENAME FROM OPPORTUNITY WHERE CLOSEDATE <= TODAY AND Opportunity_Overdue__c = False'
+                    'SELECT ID, STAGENAME FROM OPPORTUNITY WHERE CLOSEDATE <= TODAY AND Opportunity_Overdue__c = False AND (NOT STAGENAME LIKE \'Closed%\')'
             );
         }
         
         global void execute(Database.BatchableContext bc, List<Opportunity> scope){
             for (Opportunity opp : scope) {
-                if (opp.StageName <> 'Closed Won' && opp.StageName <> 'Closed Lost'){
-               	   opp.Opportunity_Overdue__c = True;
-                   recordsProcessed+=1;
-                }
+                //if (opp.StageName <> 'Closed Won' && opp.StageName <> 'Closed Lost'){
+               opp.Opportunity_Overdue__c = True;
+               recordsProcessed+=1;
+                //}
             }
             update scope;
         }
