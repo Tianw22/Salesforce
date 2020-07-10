@@ -4,49 +4,45 @@ private class TasksOnAccTest {
         User user = [SELECT Id, Name FROM User WHERE Name = 'xxxxxx'];//Put your name here
     	system.runAs(user){
             
-        	Account acc1 = new Account(); //Includes all the required field while creating a new account in your org.
-        	acc1.Type = 'Direct Customer Account';
-        	acc1.Name = 'Test1';
-        	acc1.Company_Nickname__c = 'Test1';
-        	acc1.Website = 'test1.com';
-        	acc1.Industry = 'Education';
-        	acc1.AccountSource = 'Online Research';
-        	acc1.Global_Headquarter__c = 'US';
-        	acc1.Americas_Headquarter__c = 'VA - Virginia';
-        	insert acc1;
+        Account acc1 = new Account(); //Includes all the required field while creating a new account in your org.
+        acc1.Type = 'Direct Customer Account';
+        acc1.Name = 'Test1';
+        acc1.Company_Nickname__c = 'Test1';
+        acc1.Website = 'test1.com';
+        acc1.Industry = 'xxxxxx';
+        acc1.AccountSource = 'xxxxxx';
+        insert acc1;
         
-        	Account acc2 = new Account();
-        	acc2.Type = 'Direct Customer Account';
-        	acc2.Name = 'Test2';
-        	acc2.Company_Nickname__c = 'Test2';
-        	acc2.Website = 'test2.com';
-        	acc2.Industry = 'Education';
-        	acc2.AccountSource = 'Online Research';
-        	acc2.Global_Headquarter__c = 'US';
-        	acc2.Americas_Headquarter__c = 'VA - Virginia';
-        	insert acc2;    
+        Account acc2 = new Account();
+        acc2.Type = 'Direct Customer Account';
+        acc2.Name = 'Test2';
+        acc2.Company_Nickname__c = 'Test2';
+        acc2.Website = 'test2.com';
+        acc2.Industry = 'xxxxxx';
+        acc2.AccountSource = 'xxxxxx';
+        insert acc2;    
             
-          Task t1 = new Task();
-          t1.Subject = 'Test1';
-          t1.Priority = 'Normal';
-          t1.WhatId = acc1.Id;
-          t1.IsReminderSet = false;
+        Task t1 = new Task();
+        t1.Subject = 'Test1';
+        t1.Priority = 'Normal';
+        t1.WhatId = acc1.Id;
+        t1.IsReminderSet = false;
             
-          Task t2 = new Task();
-          t2.Subject = 'Test2';
-          t2.Priority = 'Normal';
-          t2.WhatId = acc1.Id;
-          t2.IsReminderSet = false;
+        Task t2 = new Task();
+        t2.Subject = 'Test2';
+        t2.Priority = 'Normal';
+        t2.WhatId = acc1.Id;
+        t2.IsReminderSet = false;
 
-        	Test.startTest();
+        Test.startTest();
             
-        	insert t1;
-        	insert t2;  
-        	delete t1;
-        	t2.WhatId = acc2.Id;
-        	update t2;
+        insert t1;
+        insert t2;  
+        delete t1;
+        t2.WhatId = acc2.Id;
+        update t2;
        
-        	Test.stopTest();
+        Test.stopTest();
     	}   
-	}        
+    }        
 }
