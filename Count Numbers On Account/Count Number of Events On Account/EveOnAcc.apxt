@@ -1,0 +1,50 @@
+//Count number of events(meetings) on account.
+
+trigger EveOnAcc on Event (after insert, after undelete, after delete, after update) {    
+    Set<Id> setEveAccountIds = new Set<Id>();
+    List<Account> listAccountUpdate = new List<Account>();
+	List<Account> listEveAccounts = new List<Account>();
+    if(Trigger.IsAfter){
+        if(Trigger.IsInsert || Trigger.IsUndelete  || Trigger.isUpdate) {
+            for(Event ev: Trigger.new) {
+            	if(ev.WhatId!=null && String.valueOf(ev.WhatId).startsWithIgnoreCase('001')) {
+                    if(Trigger.IsInsert){
+                    	setEveAccountIds.add(ev.WhatId);
+                    	System.debug('Accounts'+setEveAccountIds);
+                	}
+                	if(Trigger.IsUpdate){
+                        if(Trigger.oldMap.get(ev.Id).WhatId != ev.WhatId || Trigger.oldMap.get(ev.Id).Merge_Refresh_Button__c != ev.Merge_Refresh_Button__c){
+                            setEveAccountIds.add(Trigger.oldMap.get(ev.Id).WhatId );
+                        	System.debug('Account Change'+setEveAccountIds);
+                		}
+            		}
+        		}
+    		}
+		}
+        if(Trigger.IsDelete){
+            for(Event ev : Trigger.Old){
+                 if(ev.WhatId!=null && String.valueOf(ev.WhatId).startsWithIgnoreCase('001')) {                    
+                     setEveAccountIds.add(ev.WhatId);
+                     System.debug('Eve Delete'+setEveAccountIds);
+                 }
+            }
+        }
+    }
+        listEveAccounts =[SELECT Id, Name, Number_of_Events__c, (Select Type from Events) FROM Account WHERE Id =:setEveAccountIds];
+        System.debug('List Eve Accounts'+listEveAccounts );
+        for(Account acc:listEveAccounts){
+            List<Event> listEve = acc.Events;
+            System.debug('Eve'+acc.Events );
+            System.debug('List Eve'+listEve );
+            acc.Number_of_Events__c = listEve.size();
+            System.debug('list Eve size'+listEve.size() );
+            listAccountUpdate.add(acc);    
+        }
+        try{
+            System.debug('list Account Update'+listAccountUpdate);
+            update listAccountUpdate;
+        }catch(System.Exception e){
+            System.debug('error'+e.getMessage());
+        }
+
+}
