@@ -1,0 +1,53 @@
+@isTest
+public class TasksOnConTest {
+    @isTest static void TasksOnCon() {
+        User user = [SELECT Id, Name FROM User WHERE Name = 'xxxxxx']; //Put your name here
+    	  system.runAs(user){
+          
+          //Put all the required fields in your org while you creating a new account, contact and task.
+          
+        	Account acc1 = new Account();
+        	acc1.Type = 'Direct Customer Account';
+        	acc1.Name = 'Test1';
+        	acc1.Website = 'test1.com';
+        	acc1.Industry = 'xxxxxxx';
+        	acc1.AccountSource = 'Online Research';
+        	insert acc1;
+            
+          Contact con1 = new Contact();
+          con1.FirstName = 'Test1';
+          con1.LastName = 'Test1';
+          con1.Title = 'Test1';
+          con1.AccountId = acc1.Id;
+          con1.Email = 'test1test1@test1.com';
+          con1.Phone = '001001';
+          con1.LeadSource = 'xxxxxxx';
+          insert con1;
+            
+          Task t1 = new Task();
+          t1.Subject = 'Test1';
+          t1.Type = 'Email';
+          t1.Email_Type__c = 'Email';
+          t1.WhatId = acc1.Id;
+          t1.WhoId = con1.Id;
+   
+          Task t2 = new Task();
+          t2.Subject = 'Test2';
+          t2.Type = 'Call';
+          t2.Description = 'Call Test';
+          t2.Call_Outcome__c = 'Connected';
+          t2.WhatId = acc1.Id;
+          t2.IsReminderSet = false;
+
+        	Test.startTest();
+            
+        	insert t1;
+        	insert t2;  
+        	delete t1;
+        	t2.WhoId = con1.Id;
+        	update t2;
+       
+        	Test.stopTest();
+    	}   
+	}        
+}
