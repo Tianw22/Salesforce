@@ -1,0 +1,1 @@
+### Add a "Merge Refresh Button" checkbox field in Account, Contact, Activity objects. When merge accounts, remember to click "Merge Refresh Button". That will solve the problem that the action of merge is not considered as an update action which won't fire the trigger.
