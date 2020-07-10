@@ -1,0 +1,60 @@
+//Count number of contacts on account.
+
+trigger ConOnAcc on Contact (After insert, After delete, After undelete, After update) {
+    Map<Id, List<Contact>> mapAcctIdContactList = new Map<Id, List<Contact>>();
+    Map<Id, List<Contact>> mapAcctIdDelContactList = new Map<Id, List<Contact>>();  
+    List<Account> listAcct = new List<Account>();
+    Set<Id> parentIdsSet = new Set<Id>();
+    List<Account> accountListToUpdate = new List<Account>();
+    
+    
+    IF(Trigger.IsAfter){
+        IF(Trigger.IsInsert || Trigger.IsUndelete){
+            FOR(Contact c : Trigger.new){
+                if(c.AccountId!=null){   
+                   parentIdsSet.add(c.AccountId); 
+                }
+            }
+        }
+        IF(Trigger.IsDelete){
+            FOR(Contact c : Trigger.Old){
+                if(c.AccountId!=null){   
+                   parentIdsSet.add(c.AccountId); 
+                }
+            }
+        }
+        IF(Trigger.IsUpdate){
+        	for(Contact Con : trigger.New) {
+            	if(String.isNotBlank(Con.AccountId) && Con.AccountId != trigger.oldMap.get(Con.Id).AccountId) {
+                	if(!mapAcctIdContactList.containsKey(Con.AccountId)){
+                    	mapAcctIdContactList.put(Con.AccountId, new List<Contact>());
+                	}
+                	mapAcctIdContactList.get(Con.AccountId).add(Con); 
+                	parentIdsSet.add(Con.AccountId);
+            	} else if(String.isBlank(Con.AccountId) && String.isNotBlank(trigger.oldMap.get(Con.Id).AccountId)) {
+                	if(!mapAcctIdDelContactList.containsKey(Con.AccountId)){
+                    	mapAcctIdDelContactList.put(Con.AccountId, new List<Contact>());
+                	}
+                	mapAcctIdDelContactList.get(Con.AccountId).add(Con);   
+                	parentIdsSet.add(trigger.oldMap.get(Con.Id).AccountId);                  
+                } else if(Con.Merge_Refresh_Button__c != trigger.oldMap.get(Con.Id).Merge_Refresh_Button__c){
+                    parentIdsSet.add(Con.AccountId);
+                }
+        	}  
+    	}
+        
+    }
+    
+    System.debug('parentIdsSet = '+parentIdsSet);
+    List<Account> accountList = new List<Account>([Select id ,Name, Associated_Contacts__c, (Select id, Name From Contacts) from Account Where id in:parentIdsSet]);
+    FOR(Account acc : accountList){
+        List<Contact> contactList = acc.Contacts;
+        acc.Associated_Contacts__c = contactList.size();
+        accountListToUpdate.add(acc);
+    }
+    try{
+        update accountListToUpdate;
+    }catch(System.Exception e){
+        System.debug(e.getMessage());
+    }
+}
