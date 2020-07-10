@@ -1,0 +1,62 @@
+@isTest
+private class ConOnAccTest {
+    @isTest static void ConOnAcc() {
+        User user = [SELECT Id, Name FROM User WHERE Name = 'xxxxxxx']; //Your name here.
+    	  system.runAs(user){
+          
+          //Put all the required fields while creating new account and contact in your org below.
+          
+        	Account acc1 = new Account(); 
+        	acc1.Type = 'Direct Customer Account';
+        	acc1.Name = 'Test1';
+        	acc1.Company_Nickname__c = 'Test1';
+        	acc1.Website = 'test1.com';
+        	acc1.Industry = 'xxxxxxxx';
+        	acc1.AccountSource = 'Online Research';
+        	acc1.Global_Headquarter__c = 'US';
+        	acc1.Americas_Headquarter__c = 'VA - Virginia';
+        	insert acc1;
+        
+        	Account acc2 = new Account();
+        	acc2.Type = 'Direct Customer Account';
+        	acc2.Name = 'Test2';
+        	acc2.Company_Nickname__c = 'Test2';
+        	acc2.Website = 'test2.com';
+        	acc2.Industry = 'xxxxxxxx';
+        	acc2.AccountSource = 'Online Research';
+        	acc2.Global_Headquarter__c = 'US';
+        	acc2.Americas_Headquarter__c = 'VA - Virginia';
+        	insert acc2;    
+            
+        	Contact con1=new Contact();
+        	con1.RecordTypeId = '012xxxxxxxxxxxxxxx';
+      		con1.FirstName = 'TEST1';
+      		con1.LastName = 'TEST1';
+        	con1.AccountId = acc1.Id;
+        	con1.Title = 'TEST1';
+        	con1.Email = 'test1@test1.com';
+        	con1.Phone = '000';
+        	con1.LeadSource = 'xxxxxxxx';
+        
+        	Contact con2=new Contact();
+        	con2.RecordTypeId = '012xxxxxxxxxxxxxxx';
+      		con2.FirstName = 'TEST2';
+      		con2.LastName = 'TEST2';
+        	con2.AccountId = acc1.Id;
+        	con2.Title = 'TEST2';
+        	con2.Email = 'test2@test2.com';
+        	con2.Phone = '111';
+        	con2.LeadSource = 'xxxxxxxx';
+
+        	Test.startTest();
+            
+        	insert con1;
+        	insert con2;  
+        	delete con1;
+        	con2.AccountId = acc2.Id;
+        	update con2;
+       
+        	Test.stopTest();
+    	}   
+	}        
+}
