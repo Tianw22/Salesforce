@@ -1,0 +1,51 @@
+@isTest
+public class EveOnConTest {
+    @isTest static void TasksOnCon() {
+        User user = [SELECT Id, Name FROM User WHERE Name = 'xxxxxxx']; //Put your name here
+    	  system.runAs(user){
+           
+          //Put all the required fields in your org while you creating a new account, contact and event.
+          
+        	Account acc1 = new Account();
+        	acc1.Type = 'Direct Customer Account';
+        	acc1.Name = 'Test1';
+        	acc1.Website = 'test1.com';
+        	acc1.Industry = 'xxxxxx';
+        	acc1.AccountSource = 'xxxxxx';
+        	insert acc1;
+            
+          Contact con1 = new Contact();
+          con1.FirstName = 'Test1';
+          con1.LastName = 'Test1';
+          con1.Title = 'Test1';
+          con1.AccountId = acc1.Id;
+          con1.Email = 'test1test1@test1.com';
+          con1.Phone = '001001';
+          con1.LeadSource = 'xxxxxx';
+          insert con1;
+            
+          Event e1 = new Event();
+          e1.Subject = 'Meeting';
+          e1.StartDateTime = system.now();
+          e1.EndDateTime = system.now()+1;
+          e1.WhatId = acc1.Id;
+          e1.WhoId = con1.Id;
+            
+          Event e2 = new Event();
+          e2.Subject = 'Meeting';
+          e2.StartDateTime = system.now();
+          e2.EndDateTime = system.now()+1;
+          e2.WhatId = acc1.Id;
+
+        	Test.startTest();
+            
+        	insert e1;
+        	insert e2;  
+        	delete e1;
+        	e2.WhoId = con1.Id;
+        	update e2;
+       
+        	Test.stopTest();
+    	}   
+	}        
+}
