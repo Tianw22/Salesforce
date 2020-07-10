@@ -2,47 +2,47 @@
 private class EveOnAccTest {
     @isTest static void EveOnAcc() {
         User user = [SELECT Id, Name FROM User WHERE Name = 'xxxxxxx']; //Your name here.
-    	  system.runAs(user){
+    	system.runAs(user){
           
-          //Put all the required fields while creating a new account and event in your org.
+        //Put all the required fields while creating a new account and event in your org.
           
-        	Account acc1 = new Account();
-        	acc1.Type = 'Direct Customer Account';
-        	acc1.Name = 'Test1';
-        	acc1.Website = 'test1.com';
-        	acc1.Industry = 'xxxxxx';
-        	acc1.AccountSource = 'Online Research';
-        	insert acc1;
+        Account acc1 = new Account();
+        acc1.Type = 'Direct Customer Account';
+        acc1.Name = 'Test1';
+        acc1.Website = 'test1.com';
+        acc1.Industry = 'xxxxxx';
+        acc1.AccountSource = 'Online Research';
+        insert acc1;
         
-        	Account acc2 = new Account();
-        	acc2.Type = 'Direct Customer Account';
-        	acc2.Name = 'Test2';
-        	acc2.Website = 'test2.com';
-        	acc2.Industry = 'xxxxxxx';
-        	acc2.AccountSource = 'Online Research';
-        	insert acc2;    
+        Account acc2 = new Account();
+        acc2.Type = 'Direct Customer Account';
+        acc2.Name = 'Test2';
+        acc2.Website = 'test2.com';
+        acc2.Industry = 'xxxxxxx';
+        acc2.AccountSource = 'Online Research';
+        insert acc2;    
             
-          Event e1 = new Event();
-          e1.Subject = 'Meeting';
-          e1.StartDateTime = system.now();
-          e1.EndDateTime = system.now()+1;
-          e1.WhatId = acc1.Id;
+        Event e1 = new Event();
+        e1.Subject = 'Meeting';
+        e1.StartDateTime = system.now();
+        e1.EndDateTime = system.now()+1;
+        e1.WhatId = acc1.Id;
             
-          Event e2 = new Event();
-          e2.Subject = 'Meeting';
-          e2.StartDateTime = system.now();
-          e2.EndDateTime = system.now()+1;
-          e2.WhatId = acc1.Id;
+        Event e2 = new Event();
+        e2.Subject = 'Meeting';
+        e2.StartDateTime = system.now();
+        e2.EndDateTime = system.now()+1;
+        e2.WhatId = acc1.Id;
 
-        	Test.startTest();
+        Test.startTest();
             
-        	insert e1;
-        	insert e2;  
-        	delete e1;
-        	e2.WhatId = acc2.Id;
-        	update e2;
+        insert e1;
+        insert e2;  
+        delete e1;
+        e2.WhatId = acc2.Id;
+        update e2;
        
-        	Test.stopTest();
+        Test.stopTest();
     	}   
-	}        
+    }        
 }
