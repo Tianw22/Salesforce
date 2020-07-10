@@ -1,0 +1,66 @@
+//Count number of tasks on account, number of emails on account and number of calls on account.
+//If only count number of tasks of task type = task, quote Line 39 & Line 40. And unquote Line 43, Line 49 and Line 50.
+
+trigger TasksOnAcc on Task (after insert, after undelete, after delete, after update) {
+    Set<Id> setTaskAccountIds = new Set<Id>();
+    List<Account> listAccountUpdate = new List<Account>();
+	List<Account> listTaskAccounts = new List<Account>();
+    if(Trigger.IsAfter){
+        if(Trigger.IsInsert || Trigger.IsUndelete  || Trigger.isUpdate) {
+            for(Task t: Trigger.new) {
+            	if(t.WhatId!=null && String.valueOf(t.WhatId).startsWithIgnoreCase('001')) {
+                    if(Trigger.IsInsert){
+                    	setTaskAccountIds.add(t.WhatId);
+                    	System.debug('Accounts'+setTaskAccountIds);
+                	}
+                	if(Trigger.IsUpdate){
+                        if(Trigger.oldMap.get(t.Id).WhatId != t.WhatId || Trigger.oldMap.get(t.Id).Merge_Refresh_Button__c != t.Merge_Refresh_Button__c){
+                            setTaskAccountIds.add(Trigger.oldMap.get(t.Id).WhatId );
+                        	System.debug('Account Change'+setTaskAccountIds);
+                		}
+            		}
+        		}
+    		}
+		}
+        if(Trigger.IsDelete){
+            for(Task t : Trigger.Old){
+                 if(t.WhatId!=null && String.valueOf(t.WhatId).startsWithIgnoreCase('001')) {                    
+                     setTaskAccountIds.add(t.WhatId);
+                     System.debug('Task Delete'+setTaskAccountIds);
+                 }
+            }
+        }
+    }
+        listTaskAccounts =[SELECT Id, Name, Number_of_Tasks__c,Number_of_Emails__c,Number_of_Calls__c, (Select Type,RecordTypeId,TaskSubtype,Call_Outcome__c,CallType From Tasks ) FROM Account WHERE Id =:setTaskAccountIds];
+        System.debug('List Task Accounts'+listTaskAccounts );
+        for(Account acc:listTaskAccounts){
+            List<Task> listTask = acc.Tasks;
+            System.debug('Task'+acc.Tasks );
+            System.debug('List Task'+listTask );
+            acc.Number_of_Tasks__c = listTask.size();
+            System.debug('list Task size'+listTask.size());
+            list<Task> emaillist=new list<Task>();
+            list<Task> calllist=new list<Task>();
+            //list<Task> tasklist=new list<Task>();
+            for(Task em: listTask){
+                if((em.Type=='Email' || em.Type=='Replied Email' || em.Type=='LinkedIn Message' || em.TaskSubtype=='Email') && String.valueOf(emaillist).contains(String.valueOf(em.Id))==false){
+                    emaillist.add(em);
+                }else if((em.Type=='Call' || em.TaskSubtype=='Call' || em.Call_Outcome__c !=null) && String.valueOf(calllist).contains(String.valueOf(em.Id))==false){
+                    calllist.add(em);
+                }//else if((em.Type=='Task' || em.TaskSubtype=='Task' || em.Priority !=null) && String.valueOf(tasklist).contains(String.valueOf(em.Id))==false){
+                //tasklist.add(em);
+            }
+            acc.Number_of_Emails__c = emaillist.size();
+            System.debug('list Email size'+emaillist.size());
+            acc.Number_of_Calls__c = calllist.size();
+            System.debug('list Call size'+calllist.size());   
+            
+            listAccountUpdate.add(acc);    
+        }
+        try{
+            System.debug('list Account Update'+listAccountUpdate);
+            update listAccountUpdate;
+        }catch(System.Exception e){
+            System.debug('error'+e.getMessage());
+        }
+}
