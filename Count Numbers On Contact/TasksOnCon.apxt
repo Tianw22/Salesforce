@@ -1,0 +1,64 @@
+//Count number of tasks on contact, number of emails on contact, number of calls on contact
+//This trigger only update number of emails and number of calls on contact. If you want to count all the tasks (task, email, call) on contact, check "Count Numbers On Account/TasksOnAcc.apxt".
+
+trigger TasksOnCon on Task (after insert, after undelete, after delete, after update) {
+    Set<Id> setTaskContactIds = new Set<Id>();
+    List<Contact> listContactUpdate = new List<Contact>();
+	List<Contact> listTaskContacts = new List<Contact>();
+    if(Trigger.IsAfter){
+        if(Trigger.IsInsert || Trigger.IsUndelete  || Trigger.isUpdate) {
+            for(Task t: Trigger.new) {
+            	if(t.WhoId!=null && String.valueOf(t.WhoId).startsWithIgnoreCase('003')) {
+                    if(Trigger.IsInsert){
+                    	setTaskContactIds.add(t.WhoId);
+                    	System.debug('Contacts'+setTaskContactIds);
+                	}
+                	if(Trigger.IsUpdate){
+                        if(Trigger.oldMap.get(t.Id).WhoId != t.WhoId || Trigger.oldMap.get(t.Id).Merge_Refresh_Button__c != t.Merge_Refresh_Button__c){
+                            setTaskContactIds.add(Trigger.oldMap.get(t.Id).WhoId );
+                        	System.debug('Contact Change'+setTaskContactIds);
+                		}
+            		}
+        		}
+    		}
+		}
+        if(Trigger.IsDelete){
+            for(Task t : Trigger.Old){
+                 if(t.WhoId!=null && String.valueOf(t.WhoId).startsWithIgnoreCase('003')) {                    
+                     setTaskContactIds.add(t.WhoId);
+                     System.debug('Task Delete'+setTaskContactIds);
+                 }
+            }
+        }
+    }
+        listTaskContacts =[SELECT Id, Name, Number_of_Emails__c,Number_of_Calls__c, (Select Type,RecordTypeId,TaskSubtype,Call_Outcome__c,CallType From Tasks ) FROM Contact WHERE Id =:setTaskContactIds];
+        System.debug('List Task Contacts'+listTaskContacts );
+        for(Contact con:listTaskContacts){
+            List<Task> listTask = con.Tasks;
+            System.debug('Task'+con.Tasks );
+            System.debug('List Task'+listTask );
+            //con.Number_of_Tasks__c = listTask.size();
+            //System.debug('list Task size'+listTask.size());
+            list<Task> emaillist=new list<Task>();
+            list<Task> calllist=new list<Task>();
+            for(Task em: listTask){
+                if((em.Type=='Email' || em.Type=='Replied Email' || em.Type=='LinkedIn Message' || em.TaskSubtype=='Email') && String.valueOf(emaillist).contains(String.valueOf(em.Id))==false){
+                    emaillist.add(em);
+                }else if((em.Type=='Call' || em.TaskSubtype=='Call' || em.Call_Outcome__c !=null) && String.valueOf(calllist).contains(String.valueOf(em.Id))==false){
+                    calllist.add(em);
+                }
+            }
+            con.Number_of_Emails__c = emaillist.size();
+            System.debug('list Email size'+emaillist.size());
+            con.Number_of_Calls__c = calllist.size();
+            System.debug('list Call size'+calllist.size());   
+            
+            listContactUpdate.add(con);    
+        }
+        try{
+            System.debug('list Contact Update'+listContactUpdate);
+            update listContactUpdate;
+        }catch(System.Exception e){
+            System.debug('error'+e.getMessage());
+        }
+}
