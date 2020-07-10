@@ -1,0 +1,50 @@
+//Count number of events(meetings) on contact
+
+trigger EveOnCon on Event (after insert, after undelete, after delete, after update) {    
+    Set<Id> setEveContactIds = new Set<Id>();
+    List<Contact> listContactUpdate = new List<Contact>();
+	List<Contact> listEveContacts = new List<Contact>();
+    if(Trigger.IsAfter){
+        if(Trigger.IsInsert || Trigger.IsUndelete  || Trigger.isUpdate) {
+            for(Event ev: Trigger.new) {
+            	if(ev.WhoId!=null && String.valueOf(ev.WhoId).startsWithIgnoreCase('003')) {
+                    if(Trigger.IsInsert){
+                    	setEveContactIds.add(ev.WhoId);
+                    	System.debug('Contacts'+setEveContactIds);
+                	}
+                	if(Trigger.IsUpdate){
+                        if(Trigger.oldMap.get(ev.Id).WhoId != ev.WhoId || Trigger.oldMap.get(ev.Id).Merge_Refresh_Button__c != ev.Merge_Refresh_Button__c){
+                            setEveContactIds.add(Trigger.oldMap.get(ev.Id).WhoId );
+                        	System.debug('Contact Change'+setEveContactIds);
+                		}
+            		}
+        		}
+    		}
+		}
+        if(Trigger.IsDelete){
+            for(Event ev : Trigger.Old){
+                 if(ev.WhoId!=null && String.valueOf(ev.WhoId).startsWithIgnoreCase('003')) {                    
+                     setEveContactIds.add(ev.WhoId);
+                     System.debug('Eve Delete'+setEveContactIds);
+                 }
+            }
+        }
+    }
+        listEveContacts =[SELECT Id, Name, Number_of_Meetings__c, (Select Type from Events) FROM Contact WHERE Id =:setEveContactIds];
+        System.debug('List Eve Contacts'+listEveContacts );
+        for(Contact acc:listEveContacts){
+            List<Event> listEve = acc.Events;
+            System.debug('Eve'+acc.Events );
+            System.debug('List Eve'+listEve );
+            acc.Number_of_Meetings__c = listEve.size();
+            System.debug('list Eve size'+listEve.size() );
+            listContactUpdate.add(acc);    
+        }
+        try{
+            System.debug('list Contact Update'+listContactUpdate);
+            update listContactUpdate;
+        }catch(System.Exception e){
+            System.debug('error'+e.getMessage());
+        }
+
+}
